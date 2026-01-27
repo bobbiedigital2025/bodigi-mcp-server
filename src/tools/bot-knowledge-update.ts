@@ -31,8 +31,9 @@ export async function executeBotKnowledgeUpdate(input: BotKnowledgeUpdateInput):
     return `⚠️ Knowledge content too short. Please provide meaningful information (minimum 10 characters).`;
   }
   
-  // Generate version number
-  const version = `v${Date.now().toString().slice(-6)}.${Math.floor(Math.random() * 100)}`;
+  // Generate version number (timestamp-based for sequential versioning)
+  const timestamp = Date.now();
+  const version = `v${timestamp}`;
   
   const update: KnowledgeUpdate = {
     botId,

@@ -27,7 +27,7 @@ export async function executeKnowledgeIngest(input: KnowledgeIngestInput): Promi
   const { source, content, category = 'general', priority = 'medium' } = input;
   
   // Generate knowledge ID
-  const knowledgeId = `knowledge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const knowledgeId = `knowledge-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   
   // Process and summarize content
   const wordCount = content.split(/\s+/).length;
