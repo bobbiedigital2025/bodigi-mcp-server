@@ -22,11 +22,19 @@ npm install bodigi-mcp-server
 
 ## 🛠️ Usage
 
-### As a Standalone Server
+### As a Standalone MCP Server (stdio)
 
 ```bash
 npm start
 ```
+
+### As an HTTP Server (with OAuth2 support)
+
+```bash
+npm run start:http
+```
+
+The HTTP server supports OAuth2 Client Credentials authentication. See [OAuth Documentation](docs/OAUTH.md) for details.
 
 ### In Claude Desktop or Other MCP Clients
 
@@ -52,8 +60,11 @@ npm install
 # Build the project
 npm run build
 
-# Run in development mode
+# Run in development mode (stdio)
 npm run dev
+
+# Run in development mode (HTTP server)
+npm run dev:http
 ```
 
 ## 🎯 Available Tools
@@ -169,7 +180,16 @@ Update bot knowledge bases with new information.
 ```
 bodigi-mcp-server/
 ├── src/
-│   ├── index.ts              # Main server entry point
+│   ├── index.ts              # Main MCP server (stdio)
+│   ├── http-server.ts        # HTTP server with OAuth2
+│   ├── auth/                 # Authentication
+│   │   └── oauth.ts
+│   ├── db/                   # Database
+│   │   └── database.ts
+│   ├── middleware/           # Middleware
+│   │   └── auth.ts
+│   ├── scripts/              # Admin scripts
+│   │   └── create-oauth-client.ts
 │   └── tools/                # Tool implementations
 │       ├── ai-teaching.ts
 │       ├── tool-discovery.ts
@@ -177,17 +197,26 @@ bodigi-mcp-server/
 │       ├── knowledge-ingest.ts
 │       ├── lesson-quiz-gen.ts
 │       └── bot-knowledge-update.ts
+├── docs/                     # Documentation
+│   └── OAUTH.md
 ├── dist/                     # Compiled JavaScript (generated)
+├── data/                     # Database files (generated)
 ├── package.json
 └── tsconfig.json
 ```
 
 ## 🔒 Security
 
+- **OAuth2 Client Credentials** - Secure authentication with JWT tokens and scope-based authorization
+- **API Key Support** - Backward compatible Bearer token authentication
 - Web fetching is restricted to approved domains
 - Content validation on all inputs
+- Client secrets hashed with bcrypt
+- Short-lived JWT tokens (15 minutes)
 - Rate limiting ready (implement as needed)
 - Version control for knowledge updates
+
+For more details on OAuth2 authentication, see [OAuth Documentation](docs/OAUTH.md).
 
 ## 🤝 Contributing
 
