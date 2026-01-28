@@ -247,18 +247,33 @@ npm run oauth:delete -- --client-id client_1234567890_abc123
 
 ### JWT Secret
 
-The JWT secret is used to sign and verify access tokens. In production:
+The JWT secret is used to sign and verify access tokens:
 
-1. Set the `JWT_SECRET` environment variable:
+1. **Set the `JWT_SECRET` environment variable in production:**
    ```bash
    export JWT_SECRET="your-strong-random-secret-here"
    ```
 
-2. Use a strong, randomly generated secret (at least 32 characters)
+2. **If no JWT_SECRET is provided**, the server will generate a random secret for the session
+   - This is acceptable for development/testing
+   - **Not suitable for production** - all tokens become invalid when server restarts
 
-3. Never commit the secret to version control
+3. Use a strong, randomly generated secret (at least 32 characters)
+   ```bash
+   # Generate a secure secret
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
 
-4. Rotate the secret periodically
+4. Never commit the secret to version control
+
+5. Rotate the secret periodically
+
+### Cryptographic Security
+
+- **Client IDs**: Generated using `crypto.randomBytes()` for cryptographic security
+- **Client Secrets**: Generated using 32 bytes of cryptographic randomness (base64url encoded)
+- **Password Hashing**: Client secrets are hashed using bcrypt with 10 salt rounds before storage
+- All random generation uses Node.js's `crypto` module (not `Math.random()`)
 
 ### Client Secrets
 
@@ -267,6 +282,13 @@ The JWT secret is used to sign and verify access tokens. In production:
 - Treat client secrets like passwords - store them securely
 - Rotate client secrets periodically
 - Delete unused clients
+
+### API Key Authentication
+
+- For backward compatibility, any non-JWT Bearer token is accepted as an API key
+- API keys have **full access** to all endpoints (not subject to scope restrictions)
+- **Production consideration**: Implement proper API key validation or disable API key support
+- To disable API key fallback, modify the authentication middleware
 
 ### Token Expiration
 

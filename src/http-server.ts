@@ -5,6 +5,7 @@ import cors from 'cors';
 import { z } from 'zod';
 import { getOAuthService } from './auth/oauth.js';
 import { authenticate, requireScope } from './middleware/auth.js';
+import { createRateLimiter } from './middleware/rate-limit.js';
 
 // Import all tools
 import { executeAiTeaching, aiTeachingSchema, aiTeachingTool } from './tools/ai-teaching.js';
@@ -17,17 +18,21 @@ import { executeBotKnowledgeUpdate, botKnowledgeUpdateSchema, botKnowledgeUpdate
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Create rate limiters
+const generalRateLimiter = createRateLimiter(60000, 100); // 100 requests per minute
+const tokenRateLimiter = createRateLimiter(60000, 10); // 10 token requests per minute
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Health check endpoint (no auth required)
-app.get('/health', (req: Request, res: Response) => {
+// Health check endpoint (no auth required, rate limited)
+app.get('/health', generalRateLimiter, (req: Request, res: Response) => {
   res.json({ status: 'ok', service: 'bodigi-mcp-server', version: '1.0.0' });
 });
 
-// OAuth token endpoint (no auth required)
-app.post('/oauth/token', async (req: Request, res: Response) => {
+// OAuth token endpoint (no auth required, stricter rate limiting)
+app.post('/oauth/token', tokenRateLimiter, async (req: Request, res: Response) => {
   try {
     const { client_id, client_secret, grant_type } = req.body;
 
@@ -72,7 +77,7 @@ app.post('/oauth/token', async (req: Request, res: Response) => {
 });
 
 // List available tools - requires tools:read scope
-app.get('/list-tools', authenticate, requireScope('tools:read'), (req: Request, res: Response) => {
+app.get('/list-tools', generalRateLimiter, authenticate, requireScope('tools:read'), (req: Request, res: Response) => {
   res.json({
     tools: [
       aiTeachingTool,
@@ -86,7 +91,7 @@ app.get('/list-tools', authenticate, requireScope('tools:read'), (req: Request, 
 });
 
 // Call a tool - requires tools:call scope
-app.post('/call-tool', authenticate, requireScope('tools:call'), async (req: Request, res: Response) => {
+app.post('/call-tool', generalRateLimiter, authenticate, requireScope('tools:call'), async (req: Request, res: Response) => {
   try {
     const { name, arguments: args } = req.body;
 
@@ -159,14 +164,14 @@ app.post('/call-tool', authenticate, requireScope('tools:call'), async (req: Req
 });
 
 // Jobs endpoint - requires jobs:run scope (placeholder for future job functionality)
-app.post('/jobs/run', authenticate, requireScope('jobs:run'), (req: Request, res: Response) => {
+app.post('/jobs/run', generalRateLimiter, authenticate, requireScope('jobs:run'), (req: Request, res: Response) => {
   res.json({ 
     message: 'Job execution endpoint - not yet implemented',
     status: 'placeholder'
   });
 });
 
-app.get('/jobs/status/:jobId', authenticate, requireScope('jobs:run'), (req: Request, res: Response) => {
+app.get('/jobs/status/:jobId', generalRateLimiter, authenticate, requireScope('jobs:run'), (req: Request, res: Response) => {
   res.json({ 
     message: 'Job status endpoint - not yet implemented',
     status: 'placeholder',
