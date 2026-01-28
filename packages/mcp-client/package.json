@@ -14,7 +14,11 @@
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "example:fetch": "node dist/examples/node-call-fetch.js",
+    "example:ingest": "node dist/examples/node-ingest.js",
+    "example:security": "node dist/examples/security-demo.js",
+    "build:examples": "tsc -p examples/tsconfig.json"
   },
   "keywords": [
     "mcp",

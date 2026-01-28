@@ -5,7 +5,7 @@
  * into the BoDiGi MCP Server for AI learning and bot updates.
  */
 
-import { MCPClient } from '../src/index.js';
+import { MCPClient } from '../dist/index.js';
 
 async function main() {
   // Initialize the client with OAuth authentication

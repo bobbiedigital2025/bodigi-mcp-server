@@ -5,7 +5,7 @@
  * the web_fetch tool and retrieve content from approved URLs.
  */
 
-import { MCPClient } from '../src/index.js';
+import { MCPClient } from '../dist/index.js';
 
 async function main() {
   // Initialize the client with API key authentication
