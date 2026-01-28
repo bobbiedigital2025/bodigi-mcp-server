@@ -18,7 +18,8 @@
     "test:oauth": "tsc && node dist/test-oauth.js",
     "oauth:create": "tsc && node dist/scripts/create-oauth-client.js create",
     "oauth:list": "tsc && node dist/scripts/create-oauth-client.js list",
-    "oauth:delete": "tsc && node dist/scripts/create-oauth-client.js delete"
+    "oauth:delete": "tsc && node dist/scripts/create-oauth-client.js delete",
+    "oauth:example": "tsc && node dist/scripts/example-oauth-flow.js"
   },
   "keywords": [
     "mcp",
