@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "bodigi": {
+      "command": "node",
+      "args": ["/absolute/path/to/bodigi-mcp-server/dist/index.js"],
+      "env": {},
+      "disabled": false
+    }
+  }
+}
