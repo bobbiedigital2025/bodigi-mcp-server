@@ -39,7 +39,8 @@ function verifyAdmin(providedKey: string): boolean {
 function toolExistsLocally(toolName: string): boolean {
   // Convert tool name to file name format (e.g., "ai_teaching" -> "ai-teaching")
   const fileName = toolName.replace(/_/g, '-');
-  const toolPath = join(__dirname, `${fileName}.ts`);
+  // In production (dist), check for .js files; in development, check for .ts
+  const toolPath = join(__dirname, `${fileName}.js`);
   const manifestPath = join(__dirname, 'manifests', `${fileName}.json`);
   
   return existsSync(toolPath) && existsSync(manifestPath);
