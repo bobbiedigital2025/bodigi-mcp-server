@@ -5,8 +5,8 @@
 
 import { spawn, ChildProcess } from 'child_process';
 import { resolve as resolvePath } from 'path';
-import { getDatabase } from '../src/db/database.js';
-import { OAuthService } from '../src/auth/oauth.js';
+import { getDatabase } from './db/database.js';
+import { OAuthService } from './auth/oauth.js';
 
 interface TestResult {
   name: string;

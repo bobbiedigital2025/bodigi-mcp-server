@@ -48,8 +48,9 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
   }
 
   // If not a valid JWT, treat as API key
-  // In a real implementation, you would verify the API key against a database
-  // For now, we'll accept any non-JWT token as a valid API key to maintain backward compatibility
+  // NOTE: For backward compatibility, any non-JWT token is accepted as an API key
+  // In a production environment, you should validate API keys against a database
+  // or disable API key support entirely by removing this fallback
   req.auth = {
     type: 'api-key',
     apiKey: token

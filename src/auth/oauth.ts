@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { getDatabase } from '../db/database.js';
 
 export interface TokenPayload {
@@ -15,10 +16,13 @@ export class OAuthService {
 
   constructor(jwtSecret?: string) {
     // Use environment variable or default secret (in production, always use env var)
-    this.jwtSecret = jwtSecret || process.env.JWT_SECRET || 'default-secret-change-in-production';
+    this.jwtSecret = jwtSecret || process.env.JWT_SECRET || '';
     
-    if (this.jwtSecret === 'default-secret-change-in-production') {
-      console.warn('⚠️  WARNING: Using default JWT secret. Set JWT_SECRET environment variable in production!');
+    if (!this.jwtSecret) {
+      // Generate a random secret if none provided (for development only)
+      this.jwtSecret = crypto.randomBytes(32).toString('hex');
+      console.warn('⚠️  WARNING: No JWT_SECRET provided. Generated random secret for this session.');
+      console.warn('⚠️  Set JWT_SECRET environment variable in production!');
     }
   }
 
@@ -99,17 +103,17 @@ export class OAuthService {
    * Generate a secure random client ID
    */
   public static generateClientId(): string {
-    return `client_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    const timestamp = Date.now();
+    const randomBytes = crypto.randomBytes(8).toString('hex');
+    return `client_${timestamp}_${randomBytes}`;
   }
 
   /**
    * Generate a secure random client secret
    */
   public static generateClientSecret(): string {
-    // Generate a 32-character random string
-    return Array.from({ length: 32 }, () => 
-      Math.random().toString(36).charAt(2)
-    ).join('') + Date.now().toString(36);
+    // Generate a cryptographically secure 32-byte random string
+    return crypto.randomBytes(32).toString('base64url');
   }
 }
 
