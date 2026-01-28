@@ -1,0 +1,19 @@
+{
+  "name": "enable_tool",
+  "description": "Admin-protected tool to safely enable existing tools",
+  "category": "system",
+  "scopes": ["system:admin", "tools:enable"],
+  "risks": ["medium"],
+  "dependencies": [],
+  "envRequirements": {
+    "BODIGI_ADMIN_KEY": "Admin authorization key for secure operations"
+  },
+  "capabilities": [
+    "tool_enablement",
+    "admin_operations",
+    "local_tool_validation",
+    "security_checks"
+  ],
+  "version": "1.0.0",
+  "enabled": true
+}

@@ -8,11 +8,12 @@
     "bodigi-mcp-server": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy-manifests",
+    "copy-manifests": "mkdir -p dist/tools/manifests && cp src/tools/manifests/*.json dist/tools/manifests/",
     "prepare": "npm run build",
     "start": "node dist/index.js",
-    "dev": "tsc && node dist/index.js",
-    "test": "tsc && node dist/test-server.js"
+    "dev": "npm run build && node dist/index.js",
+    "test": "npm run build && node dist/test-server.js"
   },
   "keywords": [
     "mcp",

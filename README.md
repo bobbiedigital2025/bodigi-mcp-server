@@ -11,6 +11,8 @@ This server acts as the **central brain** for:
 - 📚 **Daily Knowledge Ingestion** - Multi-source learning
 - ✏️ **Lesson + Quiz Generation** - Automated educational content
 - 🤖 **Bot Knowledge Updates** - Keep AI assistants current
+- 🎯 **Needs Analyzer** - Intelligent tool recommendations for applications
+- 🔧 **Tool Enablement** - Secure tool management and configuration
 
 Every BoDiGi app connects to this server to self-teach, improve UX, and keep AI assistants up to date—without duplicating logic in each app.
 
@@ -164,19 +166,64 @@ Update bot knowledge bases with new information.
 }
 ```
 
+### 7. Needs Analyzer (`needs_analyzer`)
+Analyzes application requirements and recommends appropriate MCP tools.
+
+**Parameters:**
+- `app_name` (string, required) - The name of the application
+- `app_description` (string, required) - Description of what the application does
+- `requested_capabilities` (array, required) - List of capabilities the application needs
+
+**Example:**
+```json
+{
+  "app_name": "MyLearningApp",
+  "app_description": "An educational platform for teaching programming",
+  "requested_capabilities": ["lesson_generation", "quiz_generation", "adaptive_learning"]
+}
+```
+
+### 8. Enable Tool (`enable_tool`)
+Admin-protected tool to safely enable existing tools. Requires admin authorization.
+
+**Parameters:**
+- `tool_name` (string, required) - The name of the tool to enable (must exist locally)
+- `admin_key` (string, required) - Admin authorization key
+
+**Example:**
+```json
+{
+  "tool_name": "my_custom_tool",
+  "admin_key": "your-admin-key"
+}
+```
+
+**Security Note:** This tool can only enable tools that already exist in `/src/tools/`. Remote code installation is not permitted.
+
 ## 🏗️ Architecture
 
 ```
 bodigi-mcp-server/
 ├── src/
 │   ├── index.ts              # Main server entry point
+│   ├── types/                # Type definitions
+│   │   └── tool-manifest.ts
 │   └── tools/                # Tool implementations
 │       ├── ai-teaching.ts
 │       ├── tool-discovery.ts
 │       ├── web-fetch.ts
 │       ├── knowledge-ingest.ts
 │       ├── lesson-quiz-gen.ts
-│       └── bot-knowledge-update.ts
+│       ├── bot-knowledge-update.ts
+│       ├── needs-analyzer.ts
+│       ├── enable-tool.ts
+│       ├── manifest-loader.ts
+│       └── manifests/        # Tool manifest files
+│           ├── ai-teaching.json
+│           ├── tool-discovery.json
+│           └── ...
+├── docs/                     # Documentation
+│   └── adding-tools-safely.md
 ├── dist/                     # Compiled JavaScript (generated)
 ├── package.json
 └── tsconfig.json
@@ -184,20 +231,29 @@ bodigi-mcp-server/
 
 ## 🔒 Security
 
-- Web fetching is restricted to approved domains
-- Content validation on all inputs
-- Rate limiting ready (implement as needed)
-- Version control for knowledge updates
+- **Tool Manifests**: Every tool includes a manifest with risk assessment and capability declarations
+- **No Remote Code**: Server cannot install or execute remote code
+- **Admin Protection**: Sensitive operations require admin authorization
+- **Input Validation**: All tool inputs are validated using Zod schemas
+- **Web Fetching**: Restricted to approved domains
+- **Rate Limiting**: Ready for implementation as needed
+- **Version Control**: Knowledge updates are tracked
+
+See [docs/adding-tools-safely.md](docs/adding-tools-safely.md) for detailed security guidelines.
 
 ## 🤝 Contributing
 
-This server is designed to be extended. To add new tools:
+This server is designed to be extended safely. To add new tools:
 
-1. Create a new tool file in `src/tools/`
-2. Define the tool schema using Zod
-3. Implement the execution function
-4. Export the tool definition
-5. Register it in `src/index.ts`
+1. Review the [Adding Tools Safely](docs/adding-tools-safely.md) guide
+2. Create a new tool file in `src/tools/`
+3. Create a tool manifest in `src/tools/manifests/`
+4. Define the tool schema using Zod
+5. Implement the execution function
+6. Register it in `src/index.ts`
+7. Update the manifest loader
+
+**Important:** All new tools must include a security assessment and cannot enable remote code execution.
 
 ## 📄 License
 

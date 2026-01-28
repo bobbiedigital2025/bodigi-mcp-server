@@ -16,6 +16,11 @@ import { webFetchTool, executeWebFetch, webFetchSchema } from './tools/web-fetch
 import { knowledgeIngestTool, executeKnowledgeIngest, knowledgeIngestSchema } from './tools/knowledge-ingest.js';
 import { lessonQuizGenTool, executeLessonQuizGen, lessonQuizGenSchema } from './tools/lesson-quiz-gen.js';
 import { botKnowledgeUpdateTool, executeBotKnowledgeUpdate, botKnowledgeUpdateSchema } from './tools/bot-knowledge-update.js';
+import { needsAnalyzerTool, executeNeedsAnalyzer, needsAnalyzerSchema } from './tools/needs-analyzer.js';
+import { enableToolTool, executeEnableTool, enableToolSchema } from './tools/enable-tool.js';
+
+// Import manifest loader
+import { loadAllManifests } from './tools/manifest-loader.js';
 
 /**
  * BoDiGi MCP Server
@@ -42,17 +47,41 @@ class BodigiMcpServer {
   }
 
   private setupToolHandlers(): void {
-    // List available tools
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
+    // List available tools with manifest metadata
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      const manifests = loadAllManifests();
+      const tools = [
         aiTeachingTool,
         toolDiscoveryTool,
         webFetchTool,
         knowledgeIngestTool,
         lessonQuizGenTool,
-        botKnowledgeUpdateTool
-      ],
-    }));
+        botKnowledgeUpdateTool,
+        needsAnalyzerTool,
+        enableToolTool
+      ];
+      
+      // Enhance tools with manifest metadata
+      const enhancedTools = tools.map(tool => {
+        const manifest = manifests.get(tool.name);
+        if (manifest) {
+          return {
+            ...tool,
+            metadata: {
+              category: manifest.category,
+              scopes: manifest.scopes,
+              risks: manifest.risks,
+              capabilities: manifest.capabilities,
+              version: manifest.version,
+              enabled: manifest.enabled
+            }
+          };
+        }
+        return tool;
+      });
+      
+      return { tools: enhancedTools };
+    });
 
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -95,6 +124,18 @@ class BodigiMcpServer {
           case 'bot_knowledge_update': {
             const input = botKnowledgeUpdateSchema.parse(args);
             result = await executeBotKnowledgeUpdate(input);
+            break;
+          }
+
+          case 'needs_analyzer': {
+            const input = needsAnalyzerSchema.parse(args);
+            result = await executeNeedsAnalyzer(input);
+            break;
+          }
+
+          case 'enable_tool': {
+            const input = enableToolSchema.parse(args);
+            result = await executeEnableTool(input);
             break;
           }
 
@@ -144,7 +185,7 @@ class BodigiMcpServer {
     
     // Log server start to stderr so it doesn't interfere with MCP protocol
     console.error('BoDiGi MCP Server running on stdio');
-    console.error('Server capabilities: AI Teaching, Tool Discovery, Web Fetch, Knowledge Ingest, Lesson/Quiz Gen, Bot Knowledge Update');
+    console.error('Server capabilities: AI Teaching, Tool Discovery, Web Fetch, Knowledge Ingest, Lesson/Quiz Gen, Bot Knowledge Update, Needs Analyzer, Enable Tool');
   }
 }
 

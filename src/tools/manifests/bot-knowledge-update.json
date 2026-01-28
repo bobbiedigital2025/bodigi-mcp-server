@@ -1,0 +1,18 @@
+{
+  "name": "bot_knowledge_update",
+  "description": "Update bot knowledge bases with new information",
+  "category": "automation",
+  "scopes": ["bot:write", "knowledge:update"],
+  "risks": ["medium"],
+  "dependencies": [],
+  "envRequirements": {},
+  "capabilities": [
+    "knowledge_update",
+    "bot_configuration",
+    "version_control",
+    "knowledge_removal",
+    "tag_management"
+  ],
+  "version": "1.0.0",
+  "enabled": true
+}

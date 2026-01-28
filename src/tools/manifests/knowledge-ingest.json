@@ -1,0 +1,20 @@
+{
+  "name": "knowledge_ingest",
+  "description": "Ingest and process knowledge from multiple sources",
+  "category": "learning",
+  "scopes": ["knowledge:write", "content:process"],
+  "risks": ["low"],
+  "dependencies": [],
+  "envRequirements": {},
+  "capabilities": [
+    "multi_source_ingestion",
+    "rss_feed_processing",
+    "api_integration",
+    "document_processing",
+    "manual_input",
+    "content_categorization",
+    "priority_management"
+  ],
+  "version": "1.0.0",
+  "enabled": true
+}

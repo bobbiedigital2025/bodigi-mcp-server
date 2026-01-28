@@ -1,0 +1,18 @@
+{
+  "name": "ai_teaching",
+  "description": "Provides adaptive AI teaching for various topics and skill levels",
+  "category": "learning",
+  "scopes": ["learning:read", "content:generate"],
+  "risks": ["none"],
+  "dependencies": [],
+  "envRequirements": {},
+  "capabilities": [
+    "adaptive_learning",
+    "multi_level_teaching",
+    "topic_explanation",
+    "example_generation",
+    "practice_exercises"
+  ],
+  "version": "1.0.0",
+  "enabled": true
+}
