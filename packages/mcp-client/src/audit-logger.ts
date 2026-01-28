@@ -7,9 +7,11 @@ import { AuditLogEntry } from './types.js';
 export class AuditLogger {
   private logs: AuditLogEntry[] = [];
   private enabled: boolean;
+  private maxLogSize: number;
 
-  constructor(enabled: boolean = true) {
+  constructor(enabled: boolean = true, maxLogSize: number = 1000) {
     this.enabled = enabled;
+    this.maxLogSize = maxLogSize;
   }
 
   /**
@@ -34,6 +36,11 @@ export class AuditLogger {
     };
 
     this.logs.push(entry);
+
+    // Implement log rotation to prevent memory leaks
+    if (this.logs.length > this.maxLogSize) {
+      this.logs.shift(); // Remove oldest entry
+    }
 
     // Also log to console in development
     if (process.env.NODE_ENV !== 'production') {

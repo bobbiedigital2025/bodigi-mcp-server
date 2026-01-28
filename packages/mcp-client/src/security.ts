@@ -28,8 +28,6 @@ export class SecurityValidator {
     this.allowedDomains = new Set([
       'wikipedia.org',
       'github.com',
-      'docs.',
-      'api.',
       '.edu',
       '.gov'
     ]);
@@ -45,8 +43,7 @@ export class SecurityValidator {
       /file:\/\//i,     // File protocol
       /javascript:/i,   // JavaScript protocol
       /data:.*base64/i, // Data URIs with base64
-      /<script/i,       // Script tags
-      /on\w+\s*=/i      // Event handlers
+      /<script/i        // Script tags
     ];
   }
 
@@ -106,9 +103,14 @@ export class SecurityValidator {
       const urlObj = new URL(url);
       const hostname = urlObj.hostname.toLowerCase();
 
-      // Check if domain is allowed
+      // Check if domain is allowed - use proper suffix matching
       const isAllowed = Array.from(this.allowedDomains).some(domain => {
-        return hostname.includes(domain) || hostname.endsWith(domain);
+        // For domains starting with '.', check if hostname ends with it
+        if (domain.startsWith('.')) {
+          return hostname.endsWith(domain) || hostname === domain.substring(1);
+        }
+        // For regular domains, check exact match or subdomain
+        return hostname === domain || hostname.endsWith('.' + domain);
       });
 
       if (!isAllowed) {

@@ -232,7 +232,15 @@ export class MCPClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const status = response.status;
+        const statusText = response.statusText;
+        
+        // Don't retry client errors (4xx)
+        if (status >= 400 && status < 500) {
+          throw new Error(`HTTP ${status}: ${statusText} (client error - not retrying)`);
+        }
+        
+        throw new Error(`HTTP ${status}: ${statusText}`);
       }
 
       return await response.json();
@@ -244,14 +252,20 @@ export class MCPClient {
         throw new Error(`Request timeout after ${this.config.timeout}ms`);
       }
 
-      // Retry logic with exponential backoff
+      // Don't retry client errors
+      if (error instanceof Error && error.message.includes('client error')) {
+        throw error;
+      }
+
+      // Retry logic with exponential backoff for server errors and network issues
       if (attempt < this.config.maxRetries) {
         const delay = this.config.retryDelay * Math.pow(2, attempt);
         
         this.auditLogger.log('request_retry', {
           attempt: attempt + 1,
           maxRetries: this.config.maxRetries,
-          delay
+          delay,
+          error: error instanceof Error ? error.message : String(error)
         }, true);
 
         await this.sleep(delay);

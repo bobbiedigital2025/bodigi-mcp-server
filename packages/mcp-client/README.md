@@ -364,16 +364,27 @@ Check out the `/examples` directory for complete examples:
 Demonstrates calling the `web_fetch` tool to retrieve web content.
 
 ```bash
+# Build the package and examples
 npm install
 npm run build
-node examples/node-call-fetch.ts
+npm run build:examples
+
+# Run the example
+npm run example:fetch
 ```
 
 ### `examples/node-ingest.ts`
 Shows how to ingest knowledge from various sources.
 
 ```bash
-node examples/node-ingest.ts
+npm run example:ingest
+```
+
+### `examples/security-demo.ts`
+Demonstrates security features and audit logging.
+
+```bash
+npm run example:security
 ```
 
 ## 🧪 Error Handling
