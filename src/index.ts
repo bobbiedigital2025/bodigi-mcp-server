@@ -6,16 +6,42 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
   ErrorCode,
-  McpError
+  McpError,
 } from '@modelcontextprotocol/sdk/types.js';
+
+// Initialize config, database, and logger
+import { loadConfig } from './config/index.js';
+import { initDatabase } from './db/index.js';
+import { initLogger } from './utils/logger.js';
 
 // Import all tools
 import { aiTeachingTool, executeAiTeaching, aiTeachingSchema } from './tools/ai-teaching.js';
-import { toolDiscoveryTool, executeToolDiscovery, toolDiscoverySchema } from './tools/tool-discovery.js';
+import {
+  toolDiscoveryTool,
+  executeToolDiscovery,
+  toolDiscoverySchema,
+} from './tools/tool-discovery.js';
 import { webFetchTool, executeWebFetch, webFetchSchema } from './tools/web-fetch.js';
-import { knowledgeIngestTool, executeKnowledgeIngest, knowledgeIngestSchema } from './tools/knowledge-ingest.js';
-import { lessonQuizGenTool, executeLessonQuizGen, lessonQuizGenSchema } from './tools/lesson-quiz-gen.js';
-import { botKnowledgeUpdateTool, executeBotKnowledgeUpdate, botKnowledgeUpdateSchema } from './tools/bot-knowledge-update.js';
+import {
+  knowledgeIngestTool,
+  executeKnowledgeIngest,
+  knowledgeIngestSchema,
+} from './tools/knowledge-ingest.js';
+import {
+  lessonQuizGenTool,
+  executeLessonQuizGen,
+  lessonQuizGenSchema,
+} from './tools/lesson-quiz-gen.js';
+import {
+  botKnowledgeUpdateTool,
+  executeBotKnowledgeUpdate,
+  botKnowledgeUpdateSchema,
+} from './tools/bot-knowledge-update.js';
+import {
+  knowledgeQueryTool,
+  executeKnowledgeQuery,
+  knowledgeQuerySchema,
+} from './tools/knowledge-query.js';
 
 /**
  * BoDiGi MCP Server
@@ -25,6 +51,11 @@ class BodigiMcpServer {
   private server: Server;
 
   constructor() {
+    // Initialize infrastructure
+    loadConfig();
+    initLogger();
+    initDatabase();
+
     this.server = new Server(
       {
         name: 'bodigi-mcp-server',
@@ -50,7 +81,8 @@ class BodigiMcpServer {
         webFetchTool,
         knowledgeIngestTool,
         lessonQuizGenTool,
-        botKnowledgeUpdateTool
+        botKnowledgeUpdateTool,
+        knowledgeQueryTool,
       ],
     }));
 
@@ -98,11 +130,14 @@ class BodigiMcpServer {
             break;
           }
 
+          case 'knowledge_query': {
+            const input = knowledgeQuerySchema.parse(args);
+            result = await executeKnowledgeQuery(input);
+            break;
+          }
+
           default:
-            throw new McpError(
-              ErrorCode.MethodNotFound,
-              `Unknown tool: ${name}`
-            );
+            throw new McpError(ErrorCode.MethodNotFound, `Unknown tool: ${name}`);
         }
 
         return {
@@ -117,12 +152,9 @@ class BodigiMcpServer {
         if (error instanceof McpError) {
           throw error;
         }
-        
+
         const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new McpError(
-          ErrorCode.InternalError,
-          `Tool execution failed: ${errorMessage}`
-        );
+        throw new McpError(ErrorCode.InternalError, `Tool execution failed: ${errorMessage}`);
       }
     });
   }
@@ -141,10 +173,12 @@ class BodigiMcpServer {
   async run(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    
+
     // Log server start to stderr so it doesn't interfere with MCP protocol
     console.error('BoDiGi MCP Server running on stdio');
-    console.error('Server capabilities: AI Teaching, Tool Discovery, Web Fetch, Knowledge Ingest, Lesson/Quiz Gen, Bot Knowledge Update');
+    console.error(
+      'Server capabilities: AI Teaching, Tool Discovery, Web Fetch, Knowledge Ingest, Lesson/Quiz Gen, Bot Knowledge Update, Knowledge Query'
+    );
   }
 }
 
