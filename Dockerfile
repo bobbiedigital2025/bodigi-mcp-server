@@ -1,15 +1,18 @@
-# Multi-stage build for BoDiGi MCP Server
-FROM node:20-alpine AS builder
+# Production-ready Dockerfile for BoDiGi MCP Server
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
+
+# Install dependencies needed for native modules
+RUN apk add --no-cache python3 make g++
 
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install --production=false
 
 # Copy source code
 COPY src ./src
@@ -17,18 +20,8 @@ COPY src ./src
 # Build TypeScript
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine
-
-# Set working directory
-WORKDIR /app
-
-# Install production dependencies only
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
-
-# Copy built files from builder
-COPY --from=builder /app/dist ./dist
+# Remove dev dependencies
+RUN npm prune --production
 
 # Create data directory for SQLite
 RUN mkdir -p /app/data && chown -R node:node /app/data
