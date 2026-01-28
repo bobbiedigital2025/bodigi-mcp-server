@@ -14,10 +14,24 @@ This server acts as the **central brain** for:
 
 Every BoDiGi app connects to this server to self-teach, improve UX, and keep AI assistants up to date—without duplicating logic in each app.
 
+## 📦 Packages
+
+This repository contains:
+- **bodigi-mcp-server** - The main MCP server implementation
+- **[@bodigi/mcp-client](packages/mcp-client)** - Lightweight client SDK for connecting from any Node/TS app
+
 ## 🚀 Installation
+
+### MCP Server
 
 ```bash
 npm install bodigi-mcp-server
+```
+
+### Client SDK
+
+```bash
+npm install @bodigi/mcp-client
 ```
 
 ## 🛠️ Usage
@@ -42,6 +56,28 @@ Add to your MCP client configuration (e.g., `claude_desktop_config.json`):
   }
 }
 ```
+
+### Using the Client SDK from Your App
+
+```typescript
+import { MCPClient } from '@bodigi/mcp-client';
+
+const client = new MCPClient({
+  baseUrl: 'https://mcp.bodigi.com',
+  apiKey: process.env.BODIGI_API_KEY
+});
+
+// List available tools
+const tools = await client.listTools();
+
+// Call a tool
+const result = await client.callTool('ai_teaching', {
+  topic: 'JavaScript Promises',
+  level: 'intermediate'
+});
+```
+
+See the [Client SDK documentation](packages/mcp-client/README.md) for more details.
 
 ### Development
 
