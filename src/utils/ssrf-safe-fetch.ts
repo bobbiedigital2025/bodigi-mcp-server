@@ -198,9 +198,31 @@ export async function safeFetch(url: string): Promise<FetchResult | FetchError> 
     }
 
     // Clean content (remove HTML tags for basic text extraction)
-    const cleanContent = content
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    // NOTE: This is for text extraction only, not for rendering HTML safely.
+    // The extracted content is stored as plain text and never interpreted as HTML.
+    // Multiple passes ensure even malformed/nested tags are removed.
+    let cleanContent = content;
+
+    // Remove script tags and content (multiple passes to handle nested/malformed tags)
+    while (
+      cleanContent !==
+      (cleanContent = cleanContent.replace(
+        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script\s*>/gi,
+        ''
+      ))
+    );
+
+    // Remove style tags and content (multiple passes)
+    while (
+      cleanContent !==
+      (cleanContent = cleanContent.replace(
+        /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style\s*>/gi,
+        ''
+      ))
+    );
+
+    // Remove all remaining HTML tags
+    cleanContent = cleanContent
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
