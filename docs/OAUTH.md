@@ -302,6 +302,17 @@ The JWT secret is used to sign and verify access tokens:
 - Review and audit client scopes regularly
 - Create separate clients for different use cases
 
+### Rate Limiting
+
+The server implements rate limiting to prevent abuse:
+
+- **General endpoints** (list-tools, call-tool, jobs): 100 requests per minute per client/IP
+- **Token endpoint**: 10 requests per minute per IP (stricter to prevent brute force attacks)
+- Rate limits are tracked per JWT client_id for authenticated requests, or by IP address for unauthenticated requests
+- When rate limit is exceeded, returns HTTP 429 with `retryAfter` information
+
+**Note**: Current implementation uses in-memory storage. For multi-instance deployments, consider implementing Redis-based rate limiting.
+
 ## Database
 
 OAuth clients are stored in SQLite database at `./data/bodigi.db`.
@@ -342,11 +353,12 @@ Common error codes:
 |------|-------------|-------------|
 | `invalid_request` | 400 | Missing or invalid parameters |
 | `invalid_arguments` | 400 | Invalid tool arguments |
+| `unsupported_grant_type` | 400 | Only client_credentials is supported |
 | `unauthorized` | 401 | Missing or invalid authentication |
 | `invalid_client` | 401 | Invalid client credentials |
 | `forbidden` | 403 | Insufficient permissions/scopes |
 | `not_found` | 404 | Endpoint or resource not found |
-| `unsupported_grant_type` | 400 | Only client_credentials is supported |
+| `too_many_requests` | 429 | Rate limit exceeded (includes `retryAfter` field) |
 | `execution_error` | 500 | Tool execution failed |
 | `server_error` | 500 | Internal server error |
 
