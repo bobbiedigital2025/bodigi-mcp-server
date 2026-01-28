@@ -25,7 +25,7 @@ async function testMCPServer() {
 
   const serverPath = resolve('./dist/index.js');
   const server = spawn('node', [serverPath], {
-    stdio: ['pipe', 'pipe', 'inherit']
+    stdio: ['pipe', 'pipe', 'inherit'],
   });
 
   let responseBuffer = '';
@@ -34,24 +34,24 @@ async function testMCPServer() {
 
   server.stdout.on('data', (data) => {
     responseBuffer += data.toString();
-    
+
     // Try to parse complete JSON-RPC messages
     const lines = responseBuffer.split('\n');
     responseBuffer = lines.pop() || '';
-    
+
     for (const line of lines) {
       if (line.trim()) {
         try {
           const response: MCPResponse = JSON.parse(line);
           console.log('✅ Received response:', JSON.stringify(response, null, 2));
-          
+
           if (response.result && !response.error) {
             testsPassed++;
           } else if (response.error) {
             console.error('❌ Error in response:', response.error);
             testsFailed++;
           }
-        } catch (e) {
+        } catch (_e) {
           // Ignore non-JSON lines (like startup messages)
         }
       }
@@ -71,7 +71,7 @@ async function testMCPServer() {
     await sendRequest({
       jsonrpc: '2.0',
       id: 1,
-      method: 'tools/list'
+      method: 'tools/list',
     });
 
     // Test 2: Call ai_teaching tool
@@ -84,9 +84,9 @@ async function testMCPServer() {
         name: 'ai_teaching',
         arguments: {
           topic: 'TypeScript',
-          level: 'beginner'
-        }
-      }
+          level: 'beginner',
+        },
+      },
     });
 
     // Test 3: Call tool_discovery
@@ -98,18 +98,18 @@ async function testMCPServer() {
       params: {
         name: 'tool_discovery',
         arguments: {
-          category: 'learning'
-        }
-      }
+          category: 'learning',
+        },
+      },
     });
 
     // Wait a bit for final responses
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     console.log('\n📊 Test Summary:');
     console.log(`   ✅ Tests passed: ${testsPassed}`);
     console.log(`   ❌ Tests failed: ${testsFailed}`);
-    
+
     if (testsFailed === 0 && testsPassed > 0) {
       console.log('\n🎉 All tests passed! Server is working correctly.');
       process.exit(0);
@@ -118,7 +118,6 @@ async function testMCPServer() {
       console.log('   Note: This is a basic smoke test. Manual testing may be needed.');
       process.exit(0);
     }
-
   } catch (error) {
     console.error('❌ Test error:', error);
     process.exit(1);

@@ -13,17 +13,20 @@ export function initLogger(): pino.Logger {
   }
 
   const config = getConfig();
-  
+
   logger = pino({
     level: config.LOG_LEVEL,
-    transport: config.NODE_ENV === 'development' ? {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'HH:MM:ss Z',
-        ignore: 'pid,hostname',
-      }
-    } : undefined,
+    transport:
+      config.NODE_ENV === 'development'
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+            },
+          }
+        : undefined,
   });
 
   return logger;

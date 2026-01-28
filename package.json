@@ -14,7 +14,11 @@
     "start:http": "node dist/http-server.js",
     "dev": "tsc && node dist/index.js",
     "dev:http": "tsc && node dist/http-server.js",
-    "test": "tsc && node dist/test-server.js"
+    "test": "tsc && node dist/test-server.js",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
   },
   "keywords": [
     "mcp",
@@ -46,7 +50,13 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
     "typescript": "^5.7.3"
   }
 }

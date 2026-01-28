@@ -57,7 +57,7 @@ export function initDatabase(): Database.Database {
 
   const config = getConfig();
   const dbPath = config.SQLITE_PATH;
-  
+
   // Ensure directory exists
   const dbDir = path.dirname(dbPath);
   if (!fs.existsSync(dbDir)) {
@@ -65,13 +65,13 @@ export function initDatabase(): Database.Database {
   }
 
   db = new Database(dbPath);
-  
+
   // Enable WAL mode for better concurrent access
   db.pragma('journal_mode = WAL');
-  
+
   // Create tables
   createTables(db);
-  
+
   return db;
 }
 
@@ -184,31 +184,36 @@ export const knowledgeDb = {
     return stmt.get(hash) as KnowledgeItem | undefined;
   },
 
-  search(params: { category?: string; priority?: string; keyword?: string; limit?: number }): KnowledgeItem[] {
+  search(params: {
+    category?: string;
+    priority?: string;
+    keyword?: string;
+    limit?: number;
+  }): KnowledgeItem[] {
     const db = getDatabase();
     const { category, priority, keyword, limit = 50 } = params;
-    
+
     let query = 'SELECT * FROM knowledge_items WHERE 1=1';
     const queryParams: any[] = [];
-    
+
     if (category) {
       query += ' AND category = ?';
       queryParams.push(category);
     }
-    
+
     if (priority) {
       query += ' AND priority = ?';
       queryParams.push(priority);
     }
-    
+
     if (keyword) {
       query += ' AND (title LIKE ? OR content LIKE ?)';
       queryParams.push(`%${keyword}%`, `%${keyword}%`);
     }
-    
+
     query += ' ORDER BY created_at DESC LIMIT ?';
     queryParams.push(limit);
-    
+
     const stmt = db.prepare(query);
     return stmt.all(...queryParams) as KnowledgeItem[];
   },
@@ -217,7 +222,7 @@ export const knowledgeDb = {
     const db = getDatabase();
     const stmt = db.prepare('SELECT * FROM knowledge_items ORDER BY created_at DESC LIMIT ?');
     return stmt.all(limit) as KnowledgeItem[];
-  }
+  },
 };
 
 /**
@@ -248,9 +253,11 @@ export const auditDb = {
 
   getByToolName(toolName: string, limit: number = 50): ToolAudit[] {
     const db = getDatabase();
-    const stmt = db.prepare('SELECT * FROM tool_audit WHERE tool_name = ? ORDER BY created_at DESC LIMIT ?');
+    const stmt = db.prepare(
+      'SELECT * FROM tool_audit WHERE tool_name = ? ORDER BY created_at DESC LIMIT ?'
+    );
     return stmt.all(toolName, limit) as ToolAudit[];
-  }
+  },
 };
 
 /**
@@ -279,7 +286,7 @@ export const botStateDb = {
     const db = getDatabase();
     const stmt = db.prepare('SELECT * FROM bot_state');
     return stmt.all() as BotState[];
-  }
+  },
 };
 
 /**
@@ -317,5 +324,5 @@ export const knowledgeSourcesDb = {
     const db = getDatabase();
     const stmt = db.prepare('SELECT * FROM knowledge_sources');
     return stmt.all() as KnowledgeSource[];
-  }
+  },
 };
