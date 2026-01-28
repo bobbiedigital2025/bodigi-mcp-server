@@ -15,7 +15,9 @@ export function loadToolManifest(toolName: string): ToolManifest | null {
     const manifestData = readFileSync(manifestPath, 'utf-8');
     return JSON.parse(manifestData) as ToolManifest;
   } catch (error) {
-    console.error(`Failed to load manifest for ${toolName}:`, error);
+    // Log only error message to avoid exposing internal paths
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`Failed to load manifest for ${toolName}: ${errorMsg}`);
     return null;
   }
 }

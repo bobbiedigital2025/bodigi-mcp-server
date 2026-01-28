@@ -33,6 +33,11 @@ export async function executeNeedsAnalyzer(input: NeedsAnalyzerInput): Promise<s
   // Load all tool manifests
   const manifests = loadAllManifests();
   
+  // Check if manifests loaded successfully
+  if (manifests.size === 0) {
+    return `# ⚠️ System Error\n\nNo tool manifests could be loaded. The tool needs analysis system requires properly configured manifests.\n\nPlease contact the system administrator.`;
+  }
+  
   const result: AnalysisResult = {
     recommended_tools: [],
     missing_capabilities: []
@@ -47,11 +52,12 @@ export async function executeNeedsAnalyzer(input: NeedsAnalyzerInput): Promise<s
       continue;
     }
     
-    const matchedCaps: string[] = [];
+    const matchedCaps = new Set<string>();
     
     // Check for exact and partial capability matches
     for (const requestedCap of requested_capabilities) {
       const requestedLower = requestedCap.toLowerCase();
+      let capMatched = false;
       
       for (const toolCap of manifest.capabilities) {
         const toolCapLower = toolCap.toLowerCase();
@@ -60,32 +66,35 @@ export async function executeNeedsAnalyzer(input: NeedsAnalyzerInput): Promise<s
         if (requestedLower === toolCapLower || 
             requestedLower.includes(toolCapLower.replace(/_/g, ' ')) ||
             toolCapLower.includes(requestedLower.replace(/ /g, '_'))) {
-          matchedCaps.push(requestedCap);
+          matchedCaps.add(requestedCap);
           matchedCapabilities.add(requestedCap);
+          capMatched = true;
+          break; // Found a match, no need to check other tool capabilities
         }
       }
       
-      // Also check against category and description for semantic matches
-      const categoryMatch = manifest.category.toLowerCase().includes(requestedLower) ||
-                           requestedLower.includes(manifest.category.toLowerCase());
-      const descMatch = manifest.description.toLowerCase().includes(requestedLower);
-      
-      if (categoryMatch || descMatch) {
-        if (!matchedCaps.includes(requestedCap)) {
-          matchedCaps.push(requestedCap);
+      // If no direct capability match, check category and description
+      if (!capMatched) {
+        const categoryMatch = manifest.category.toLowerCase().includes(requestedLower) ||
+                             requestedLower.includes(manifest.category.toLowerCase());
+        const descMatch = manifest.description.toLowerCase().includes(requestedLower);
+        
+        if (categoryMatch || descMatch) {
+          matchedCaps.add(requestedCap);
           matchedCapabilities.add(requestedCap);
         }
       }
     }
     
     // If this tool matches any capabilities, recommend it
-    if (matchedCaps.length > 0) {
+    if (matchedCaps.size > 0) {
+      // Find the highest risk level (assuming risks are ordered from highest to lowest)
       const highestRisk = manifest.risks.length > 0 ? manifest.risks[0] : 'none';
       
       result.recommended_tools.push({
         name: toolName,
-        reason: `Provides ${matchedCaps.length} matching capability(ies): ${manifest.description}`,
-        capabilities_matched: matchedCaps,
+        reason: `Provides ${matchedCaps.size} matching capability(ies): ${manifest.description}`,
+        capabilities_matched: Array.from(matchedCaps),
         risk_level: highestRisk
       });
     }

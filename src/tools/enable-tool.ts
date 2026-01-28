@@ -14,7 +14,11 @@ const __dirname = dirname(__filename);
  */
 
 export const enableToolSchema = z.object({
-  tool_name: z.string().describe('The name of the tool to enable (must exist in /src/tools/)'),
+  tool_name: z.string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z_]+$/, 'Tool name must contain only lowercase letters and underscores')
+    .describe('The name of the tool to enable (must exist in /src/tools/)'),
   admin_key: z.string().describe('Admin authorization key (required for security)')
 });
 
@@ -24,13 +28,22 @@ export type EnableToolInput = z.infer<typeof enableToolSchema>;
 const ADMIN_KEY = process.env.BODIGI_ADMIN_KEY || 'default-admin-key-change-in-production';
 
 /**
- * Verify admin authorization
+ * Verify admin authorization using constant-time comparison
  */
 function verifyAdmin(providedKey: string): boolean {
-  if (providedKey !== ADMIN_KEY) {
+  const expectedKey = ADMIN_KEY;
+  
+  // Prevent timing attacks by comparing all characters
+  if (providedKey.length !== expectedKey.length) {
     return false;
   }
-  return true;
+  
+  let result = 0;
+  for (let i = 0; i < providedKey.length; i++) {
+    result |= providedKey.charCodeAt(i) ^ expectedKey.charCodeAt(i);
+  }
+  
+  return result === 0;
 }
 
 /**
