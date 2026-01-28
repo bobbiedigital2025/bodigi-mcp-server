@@ -9,8 +9,8 @@
  *   npm run create-oauth-client delete --client-id <client_id>
  */
 
-import { getDatabase } from '../src/db/database.js';
-import { OAuthService } from '../src/auth/oauth.js';
+import { getDatabase } from '../db/database.js';
+import { OAuthService } from '../auth/oauth.js';
 
 const VALID_SCOPES = ['tools:read', 'tools:call', 'jobs:run'];
 

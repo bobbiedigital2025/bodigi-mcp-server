@@ -188,6 +188,8 @@ bodigi-mcp-server/
 │   │   └── database.ts
 │   ├── middleware/           # Middleware
 │   │   └── auth.ts
+│   ├── scripts/              # Admin scripts
+│   │   └── create-oauth-client.ts
 │   └── tools/                # Tool implementations
 │       ├── ai-teaching.ts
 │       ├── tool-discovery.ts
@@ -195,8 +197,6 @@ bodigi-mcp-server/
 │       ├── knowledge-ingest.ts
 │       ├── lesson-quiz-gen.ts
 │       └── bot-knowledge-update.ts
-├── scripts/                  # Admin scripts
-│   └── create-oauth-client.ts
 ├── docs/                     # Documentation
 │   └── OAUTH.md
 ├── dist/                     # Compiled JavaScript (generated)
