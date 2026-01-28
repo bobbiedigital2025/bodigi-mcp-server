@@ -9,6 +9,11 @@ import {
   McpError
 } from '@modelcontextprotocol/sdk/types.js';
 
+// Initialize config, database, and logger
+import { loadConfig } from './config/index.js';
+import { initDatabase } from './db/index.js';
+import { initLogger } from './utils/logger.js';
+
 // Import all tools
 import { aiTeachingTool, executeAiTeaching, aiTeachingSchema } from './tools/ai-teaching.js';
 import { toolDiscoveryTool, executeToolDiscovery, toolDiscoverySchema } from './tools/tool-discovery.js';
@@ -16,6 +21,7 @@ import { webFetchTool, executeWebFetch, webFetchSchema } from './tools/web-fetch
 import { knowledgeIngestTool, executeKnowledgeIngest, knowledgeIngestSchema } from './tools/knowledge-ingest.js';
 import { lessonQuizGenTool, executeLessonQuizGen, lessonQuizGenSchema } from './tools/lesson-quiz-gen.js';
 import { botKnowledgeUpdateTool, executeBotKnowledgeUpdate, botKnowledgeUpdateSchema } from './tools/bot-knowledge-update.js';
+import { knowledgeQueryTool, executeKnowledgeQuery, knowledgeQuerySchema } from './tools/knowledge-query.js';
 
 /**
  * BoDiGi MCP Server
@@ -25,6 +31,11 @@ class BodigiMcpServer {
   private server: Server;
 
   constructor() {
+    // Initialize infrastructure
+    loadConfig();
+    initLogger();
+    initDatabase();
+    
     this.server = new Server(
       {
         name: 'bodigi-mcp-server',
@@ -50,7 +61,8 @@ class BodigiMcpServer {
         webFetchTool,
         knowledgeIngestTool,
         lessonQuizGenTool,
-        botKnowledgeUpdateTool
+        botKnowledgeUpdateTool,
+        knowledgeQueryTool
       ],
     }));
 
@@ -95,6 +107,12 @@ class BodigiMcpServer {
           case 'bot_knowledge_update': {
             const input = botKnowledgeUpdateSchema.parse(args);
             result = await executeBotKnowledgeUpdate(input);
+            break;
+          }
+          
+          case 'knowledge_query': {
+            const input = knowledgeQuerySchema.parse(args);
+            result = await executeKnowledgeQuery(input);
             break;
           }
 
@@ -144,7 +162,7 @@ class BodigiMcpServer {
     
     // Log server start to stderr so it doesn't interfere with MCP protocol
     console.error('BoDiGi MCP Server running on stdio');
-    console.error('Server capabilities: AI Teaching, Tool Discovery, Web Fetch, Knowledge Ingest, Lesson/Quiz Gen, Bot Knowledge Update');
+    console.error('Server capabilities: AI Teaching, Tool Discovery, Web Fetch, Knowledge Ingest, Lesson/Quiz Gen, Bot Knowledge Update, Knowledge Query');
   }
 }
 
