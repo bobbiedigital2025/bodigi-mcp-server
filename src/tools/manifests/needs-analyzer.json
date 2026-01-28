@@ -1,0 +1,17 @@
+{
+  "name": "needs_analyzer",
+  "description": "Analyzes application requirements and recommends appropriate MCP tools",
+  "category": "system",
+  "scopes": ["system:analyze", "tools:recommend"],
+  "risks": ["none"],
+  "dependencies": [],
+  "envRequirements": {},
+  "capabilities": [
+    "requirement_analysis",
+    "tool_recommendation",
+    "capability_matching",
+    "gap_identification"
+  ],
+  "version": "1.0.0",
+  "enabled": true
+}

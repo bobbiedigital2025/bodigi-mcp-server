@@ -1,0 +1,17 @@
+{
+  "name": "tool_discovery",
+  "description": "Discover available MCP tools and their capabilities",
+  "category": "system",
+  "scopes": ["system:read", "tools:list"],
+  "risks": ["none"],
+  "dependencies": [],
+  "envRequirements": {},
+  "capabilities": [
+    "tool_listing",
+    "capability_discovery",
+    "category_filtering",
+    "search_functionality"
+  ],
+  "version": "1.0.0",
+  "enabled": true
+}

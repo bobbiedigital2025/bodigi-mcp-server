@@ -103,6 +103,22 @@ async function testMCPServer() {
       }
     });
 
+    // Test 4: Call needs_analyzer
+    console.log('\n🎯 Test 4: Calling needs_analyzer...');
+    await sendRequest({
+      jsonrpc: '2.0',
+      id: 4,
+      method: 'tools/call',
+      params: {
+        name: 'needs_analyzer',
+        arguments: {
+          app_name: 'TestApp',
+          app_description: 'A test application for learning',
+          requested_capabilities: ['lesson_generation', 'quiz_generation', 'adaptive_learning']
+        }
+      }
+    });
+
     // Wait a bit for final responses
     await new Promise(resolve => setTimeout(resolve, 2000));
 
