@@ -1,14 +1,36 @@
-node_modules
-dist
-npm-debug.log
-.env
-.env.*
-!.env.example
-.git
-.github
-*.md
-!README.md
-.gitignore
-coverage
-.nyc_output
+# Exclude dependencies
+node_modules/
+
+# Exclude build output (will be generated in Docker)
+dist/
+
+# Exclude logs
+npm-debug.log*
 *.log
+
+# Exclude environment files
+.env
+.env.local
+.env.*.local
+
+# Exclude git
+.git/
+.gitignore
+
+# Exclude CI/CD
+.github/
+
+# Exclude coverage
+coverage/
+.nyc_output/
+
+# Exclude documentation (except README)
+CHANGELOG.md
+CONTRIBUTING.md
+DEPLOY.md
+SECURITY.md
+CHECKLIST.md
+
+# Keep .env.example for reference
+!.env.example
+!README.md
