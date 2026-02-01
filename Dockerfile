@@ -1,24 +1,28 @@
 # Production-ready Dockerfile for BoDiGi MCP Server
-FROM node:20-alpine
+# Using Debian-based image for better package availability and reliability
+FROM node:20-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies needed for native modules
-RUN apk add --no-cache python3 make g++
+# Install dependencies needed for native modules (better-sqlite3)
+RUN apt-get update && \
+    apt-get install -y \
+        python3 \
+        make \
+        g++ \
+        --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm install --production=false
-
-# Copy source code (explicit copy to ensure all files are included)
+# Copy source code BEFORE npm install (needed for prepare script)
 COPY src/ ./src/
 
-# Build TypeScript
-RUN npm run build
+# Install dependencies (this will also run the prepare script which builds)
+RUN npm install --production=false
 
 # Remove dev dependencies
 RUN npm prune --production
